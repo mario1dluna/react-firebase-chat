@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./addUser.css";
-import { collection, getDoc, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../../../lib/firebase";
 
 const AddUser = () => {
   const [user, setUser] = useState(null);
@@ -13,10 +14,10 @@ const AddUser = () => {
       const userRef = collection(db, "users");
 
       const q = query(userRef, where("username", "==", username));
-      const querrySnapShot = await getDoc(q);
+      const querySnapshot = await getDocs(q);
 
       if (!querySnapshot.empty) {
-        setUser(querySnapShot.docs[0].data());
+        setUser(querySnapshot.docs[0].data());
       }
     } catch (err) {
       console.log(err);

@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import "./chatList.css";
 import { useUserStore } from "../../../lib/userStore";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase"; // Adjust the path as needed
+import AddUser from "./addUser/addUser";
 
 const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
@@ -19,7 +20,7 @@ const ChatList = () => {
       async (res) => {
         const items = res.data().chats;
 
-        const promisses = items.map(async (item) => {
+        const promises = items.map(async (item) => {
           const userDocRef = doc(db, "users", item.receiverId);
           const userDocSnap = await getDoc(userDocRef);
 
@@ -71,7 +72,7 @@ const ChatList = () => {
           onClick={() => setAddMode((prev) => !prev)}
         />
       </div>
-
+      {addMode && <AddUser />}
       {chats.map((chat, idx) => (
         <div className="item" key={chat.id || idx}>
           <img src="./avatar.png" alt="" />
