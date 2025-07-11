@@ -57,10 +57,28 @@
   border-radius: 5px;
   cursor: pointer;
   font-weight: 500;
+
+  &:disabled {
+    cursor: not-allowed;
+    background-color: #1f8ff19c;
+  }
 }
 
 .login .item form separator {
   width: 2px;
   height: 80%;
   background-color: #dddddd35;
+}
+
+/* login.css */
+.separator {
+  width: 1px;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* o el color/transparencia que prefieras */
+  height: 80%; /* o 100% para toda la altura del contenedor */
+  align-self: center;
 }

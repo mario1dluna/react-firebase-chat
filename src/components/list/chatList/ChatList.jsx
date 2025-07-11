@@ -1,10 +1,44 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./chatList.css";
+import { useUserStore } from "../../../lib/userStore";
+import { onSnapshot, doc } from "firebase/firestore";
+import { db } from "../../../lib/firebase"; // Adjust the path as needed
 
 const ChatList = () => {
   const [addMode, setAddMode] = useState(false);
+  const [chats, setChats] = useState([]);
+
+  const { currentUser } = useUserStore();
+
   const chatListRef = useRef(null);
   let scrollTimeout = null;
+
+  useEffect(() => {
+    const unSub = onSnapshot(
+      doc(db, "userchats", currentUser.id),
+      async (res) => {
+        const items = res.data().chats;
+
+        const promisses = items.map(async (item) => {
+          const userDocRef = doc(db, "users", item.receiverId);
+          const userDocSnap = await getDoc(userDocRef);
+
+          const user = userDocSnap.data();
+
+          return { ...item, user };
+        });
+
+        const chatData = await Promise.all(promises);
+        setChats(chatData.sort((a, b) => b.updatedAt - a.updatedAt));
+      }
+    );
+
+    return () => {
+      unSub();
+    };
+  }, [currentUser.id]);
+
+  console.log("Chats:", chats);
 
   useEffect(() => {
     const el = chatListRef.current;
@@ -38,48 +72,15 @@ const ChatList = () => {
         />
       </div>
 
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello</p>
+      {chats.map((chat, idx) => (
+        <div className="item" key={chat.id || idx}>
+          <img src="./avatar.png" alt="" />
+          <div className="texts">
+            <span>Jane Doe</span>
+            <p>{chat.lastMessange}</p>
+          </div>
         </div>
-      </div>
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello</p>
-        </div>
-      </div>
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello</p>
-        </div>
-      </div>
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello </p>
-        </div>
-      </div>
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello </p>
-        </div>
-      </div>
-      <div className="item">
-        <img src="./avatar.png" alt="" />
-        <div className="texts">
-          <span>Jane Doe</span>
-          <p>Hello </p>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
